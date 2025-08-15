@@ -1,0 +1,742 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eaglercraft Loader</title>
+    <!-- Use a custom font for better aesthetics -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS for a modern and responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* General styling for dark theme (default) */
+        :root {
+            --bg-color: #1a202c;
+            --main-bg-color: rgba(31, 41, 55, 0.85);
+            --text-color: #e5e7eb;
+            --header-color: #34d399;
+            --btn-bg-primary: #8b5cf6;
+            --btn-hover-primary: #7c3aed;
+            --btn-bg-secondary: #059669;
+            --btn-hover-secondary: #047857;
+            --file-item-bg: rgba(255, 255, 255, 0.05);
+            --message-bg-success: #10b981;
+            --message-bg-error: #ef4444;
+            --message-bg-info: #f59e0b;
+            --link-btn-bg: rgba(255, 255, 255, 0.1);
+            --link-btn-hover-bg: rgba(255, 255, 255, 0.2);
+            --link-btn-text: #e5e7eb;
+        }
+        
+        /* Light theme overrides */
+        body.light-theme {
+            --bg-color: #f3f4f6;
+            --main-bg-color: rgba(255, 255, 255, 0.85);
+            --text-color: #1f2937;
+            --header-color: #10b981;
+            --btn-bg-primary: #3b82f6;
+            --btn-hover-primary: #2563eb;
+            --btn-bg-secondary: #0ea5e9;
+            --btn-hover-secondary: #0284c7;
+            --file-item-bg: rgba(0, 0, 0, 0.05);
+            --message-bg-success: #22c55e;
+            --message-bg-error: #dc2626;
+            --message-bg-info: #f97316;
+            --link-btn-bg: rgba(0, 0, 0, 0.1);
+            --link-btn-hover-bg: rgba(0, 0, 0, 0.2);
+            --link-btn-text: #1f2937;
+        }
+
+        /* Minecraft theme overrides */
+        body.minecraft-theme {
+            --bg-color: #38a169; /* Green fallback */
+            /* This is the updated color for a more transparent, glossy look */
+            --main-bg-color: rgba(107, 70, 48, 0.6); /* Brown with lower opacity */
+            --text-color: #e5e7eb;
+            --header-color: #a0aec0; /* Gray */
+            --btn-bg-primary: #4a5568; /* Dark gray */
+            --btn-hover-primary: #2d3748; /* Darker gray */
+            --btn-bg-secondary: #c05621; /* Orange */
+            --btn-hover-secondary: #9b481c; /* Darker orange */
+            --file-item-bg: rgba(255, 255, 255, 0.1);
+            --message-bg-success: #38a169;
+            --message-bg-error: #e53e3e;
+            --message-bg-info: #dd6b20;
+            --link-btn-bg: rgba(255, 255, 255, 0.2);
+            --link-btn-hover-bg: rgba(255, 255, 255, 0.3);
+            --link-btn-text: #e5e7eb;
+            font-family: 'Press Start 2P', cursive;
+            
+            /* Background image for Minecraft theme */
+            background-image: url('https://i.redd.it/4ec77oea73c41.gif');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.5s ease, font-family 0.5s ease;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        /* Updated glossy effect for the main container */
+        #app-container {
+            background-color: var(--main-bg-color);
+            backdrop-filter: blur(10px); /* Increased blur for a glossier look */
+            transition: background-color 0.5s ease, backdrop-filter 0.5s ease;
+            pointer-events: none;
+            z-index: 10;
+            /* Added a more complex box shadow for a glossy, lifted effect */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2),
+                        0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border for definition */
+        }
+
+        /* Adjust box shadow for different themes for better contrast */
+        body.light-theme #app-container {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                        0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Re-enable pointer events for all interactive elements inside the container */
+        #app-container * {
+            pointer-events: auto;
+        }
+
+        h1 {
+            color: var(--header-color);
+            transition: color 0.5s ease;
+        }
+
+        .text-gray-300 {
+            color: var(--text-color);
+            transition: color 0.5s ease;
+        }
+
+        /* Ensure text-gray-300 has good contrast on light theme */
+        body.light-theme .text-gray-300 {
+            color: var(--text-color);
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background-color: var(--file-item-bg);
+            border-radius: 0.75rem;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Ensure text in file-item is visible on all themes */
+        body.dark-theme .file-item span,
+        body.light-theme .file-item span,
+        body.minecraft-theme .file-item span {
+            color: var(--text-color);
+        }
+        
+        /* General button styling for dark and light themes */
+        .launch-button, .upload-button, .theme-button, .audio-player-button {
+            transition: all 0.1s ease-in-out;
+            cursor: pointer;
+            border: 2px solid transparent;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background-color: var(--btn-bg-primary);
+            color: var(--text-color);
+            transform: scale(1.0);
+        }
+        
+        .launch-button:hover, .upload-button:hover, .audio-player-button:hover {
+            transform: scale(1.05);
+            background-color: var(--btn-hover-primary);
+        }
+        
+        .upload-button {
+            padding: 0.75rem 1.5rem;
+        }
+
+        /* Styling for theme selector buttons */
+        .theme-button {
+            padding: 0.5rem 1rem;
+            transform: scale(1.0);
+        }
+
+        .theme-button.active {
+            transform: scale(1.1);
+            box-shadow: 0 8px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+        }
+
+        /* Specific border colors for active buttons */
+        #dark-theme-btn.active {
+            border-color: white;
+        }
+        #light-theme-btn.active {
+            border-color: var(--text-color);
+        }
+        #minecraft-theme-btn.active {
+            border-color: #a0aec0;
+        }
+        
+        /* Sizing for the new SVG icons */
+        .audio-player-button svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        /* Style for the new glossy link buttons */
+        .link-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            background-color: var(--link-btn-bg);
+            color: var(--link-btn-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+        }
+
+        .link-button:hover {
+            background-color: var(--link-btn-hover-bg);
+            transform: scale(1.05);
+        }
+
+        .link-button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Adjustments for light theme link buttons */
+        body.light-theme .link-button {
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 md:p-8">
+    <!-- The canvas for the background animation -->
+    <canvas id="background-canvas"></canvas>
+
+    <div id="app-container" class="p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-2xl text-center z-10">
+        <h1 class="text-4xl font-bold mb-4">Eaglercraft Loader</h1>
+        <p class="mb-6 text-gray-300">
+            Upload your Eaglercraft HTML file(s) to play in your browser.
+        </p>
+
+        <!-- Theme Controls -->
+        <div class="mb-6 flex flex-wrap justify-center items-center space-x-4">
+            <span class="text-gray-300 font-semibold mb-2 sm:mb-0">Themes:</span>
+            <button id="dark-theme-btn" class="theme-button bg-gray-700 text-gray-200 mb-2 sm:mb-0">Dark</button>
+            <button id="light-theme-btn" class="theme-button bg-white text-gray-800 mb-2 sm:mb-0">Light</button>
+            <button id="minecraft-theme-btn" class="theme-button bg-gray-600 text-white mb-2 sm:mb-0">Minecraft</button>
+        </div>
+        
+        <!-- New: External Link Buttons -->
+        <div class="mb-6 flex flex-wrap justify-center items-center space-x-4">
+            <a href="https://mathactivities.github.io" target="_blank" rel="noopener noreferrer" class="link-button">
+                Games
+            </a>
+            <a href="https://lolfactor39.github.io/chat" target="_blank" rel="noopener noreferrer" class="link-button">
+                Chat
+            </a>
+        </div>
+
+        <!-- Audio Player Section -->
+        <div id="audio-player-container" class="mt-4 flex flex-col items-center">
+            <p id="now-playing" class="text-gray-300 mb-2 text-sm italic"></p>
+            <div class="flex space-x-4">
+                <button id="prev-btn" class="audio-player-button p-3 rounded-full shadow-lg">
+                    <!-- SVG for Previous Track -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12zM5 5h2v14H5z"/>
+                    </svg>
+                </button>
+                <button id="play-pause-btn" class="audio-player-button p-3 rounded-full shadow-lg">
+                    <!-- SVG for Play/Pause. JS will toggle this. Default is play. -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="play-icon">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="pause-icon" class="hidden">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                </button>
+                <button id="next-btn" class="audio-player-button p-3 rounded-full shadow-lg">
+                    <!-- SVG for Next Track -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12zM19 5v14h-2V5z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main file upload container -->
+        <div class="space-y-4">
+            <div class="relative flex items-center justify-center">
+                <!-- File input is hidden, the label acts as the visual button -->
+                <input type="file" id="file-upload" accept=".html" multiple class="hidden" />
+                <label for="file-upload" class="cursor-pointer upload-button font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-105 shadow-lg">
+                    Choose Eaglercraft HTML Files
+                </label>
+            </div>
+        </div>
+
+        <!-- Container for the list of uploaded files -->
+        <div id="file-list-container" class="mt-8 space-y-3 text-left">
+            <!-- File items will be dynamically added here by JavaScript -->
+        </div>
+
+        <!-- Message box for user feedback -->
+        <div id="message-box" class="mt-8 hidden text-white p-4 rounded-xl shadow-lg">
+            <!-- Content will be injected here by JavaScript -->
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('file-upload');
+            const fileListContainer = document.getElementById('file-list-container');
+            const messageBox = document.getElementById('message-box');
+            const darkThemeBtn = document.getElementById('dark-theme-btn');
+            const lightThemeBtn = document.getElementById('light-theme-btn');
+            const minecraftThemeBtn = document.getElementById('minecraft-theme-btn');
+            const body = document.body;
+            const canvas = document.getElementById('background-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Audio player elements
+            const audioPlayerContainer = document.getElementById('audio-player-container');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const nowPlayingText = document.getElementById('now-playing');
+            const audio = new Audio();
+            let currentTrackIndex = 0;
+            let currentMusicList = [];
+            
+            // New SVG elements
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+            
+            // Define color palettes, music, and other settings for each theme
+            const themes = {
+                'dark-theme': {
+                    name: 'dark-theme',
+                    glowColors: [
+                        'rgba(141, 0, 196, 0.8)',
+                        'rgba(0, 234, 141, 0.8)',
+                        'rgba(20, 232, 30, 0.8)',
+                        'rgba(181, 61, 255, 0.8)',
+                        'rgba(1, 126, 213, 0.8)',
+                    ],
+                    animation: 'stars',
+                    music: []
+                },
+                'light-theme': {
+                    name: 'light-theme',
+                    bubbleColors: [
+                        'rgba(59, 130, 246, 0.5)', // Blue
+                        'rgba(255, 159, 28, 0.5)', // Orange
+                        'rgba(22, 163, 74, 0.5)',  // Green
+                        'rgba(147, 51, 234, 0.5)', // Purple
+                        'rgba(239, 68, 68, 0.5)',  // Red
+                    ],
+                    animation: 'bubbles',
+                    music: []
+                },
+                'minecraft-theme': {
+                    name: 'minecraft-theme',
+                    animation: 'none',
+                    music: [
+                        { name: 'Aria Math (Protostar Remix)', url: 'https://vgmsite.com/soundtracks/aria-math-protostar-remix-2020/pqukbkzagc/01.%20Protostar%20-%20Aria%20Math%20%28Protostar%20Remix%29.mp3' },
+                        { name: 'Moog City', url: 'https://vgmsite.com/soundtracks/minecraft/gvhssdil/1-06.%20Moog%20City.mp3' },
+                        { name: 'Minecraft', url: 'https://vgmsite.com/soundtracks/minecraft/rimhcfkk/1-08.%20Minecraft.mp3' }
+                    ]
+                }
+            };
+            
+            let currentTheme = themes['dark-theme'];
+            let animationFrameId;
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            // --- Canvas Animation Logic ---
+            let stars = [];
+            let glows = [];
+            const numStars = 700;
+            const starSpeed = 0.4;
+            
+            let bubbles = [];
+            const numBubbles = 50; 
+            
+            function setCanvasSize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            setCanvasSize();
+            window.addEventListener('resize', setCanvasSize);
+            
+            // Star object constructor
+            function Star() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.radius = Math.random() * 1.5 + 0.5;
+                this.baseOpacity = Math.random();
+                this.currentOpacity = this.baseOpacity;
+                this.speedX = (Math.random() - 0.5) * starSpeed;
+                this.speedY = (Math.random() - 0.5) * starSpeed;
+            }
+            
+            // Bubble object constructor
+            function Bubble() {
+                this.radius = Math.random() * 20 + 5;
+                this.x = Math.random() * (canvas.width - this.radius * 2) + this.radius;
+                this.y = canvas.height + this.radius;
+                this.speed = Math.random() * 0.5 + 1.5;
+                this.color = currentTheme.bubbleColors[Math.floor(Math.random() * currentTheme.bubbleColors.length)];
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.isPopping = false;
+                this.popScale = 1.0;
+                this.fadeOpacity = 1.0;
+            }
+            
+            // Create initial stars
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < numStars; i++) {
+                    stars.push(new Star());
+                }
+            }
+            
+            // Create initial bubbles
+            function createBubbles() {
+                bubbles = [];
+                for (let i = 0; i < numBubbles; i++) {
+                    bubbles.push(new Bubble());
+                }
+            }
+            
+            // Draw and update stars
+            function drawStars() {
+                for (let i = 0; i < stars.length; i++) {
+                    const star = stars[i];
+                    star.x += star.speedX;
+                    star.y += star.speedY;
+                    
+                    if (star.x < 0 || star.x > canvas.width || star.y < 0 || star.y > canvas.height) {
+                        stars[i] = new Star();
+                        if (star.speedX < 0) star.x = canvas.width; else star.x = 0;
+                        if (star.speedY < 0) star.y = canvas.height; else star.y = 0;
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.currentOpacity})`;
+                    ctx.fill();
+                }
+
+                for (let i = glows.length - 1; i >= 0; i--) {
+                    const glow = glows[i];
+                    glow.opacity -= glow.fadeSpeed;
+                    if (glow.opacity <= 0) {
+                        glows.splice(i, 1);
+                        continue;
+                    }
+                    
+                    const glowGradient = ctx.createRadialGradient(
+                        glow.x, glow.y, 0,
+                        glow.x, glow.y, glow.radius
+                    );
+                    glowGradient.addColorStop(0, glow.color);
+                    glowGradient.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                    
+                    ctx.fillStyle = glowGradient;
+                    ctx.globalAlpha = glow.opacity;
+                    ctx.beginPath();
+                    ctx.arc(glow.x, glow.y, glow.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+            
+            // Draw and update bubbles
+            function drawBubbles() {
+                if (currentTheme.animation === 'bubbles') {
+                    for (let i = bubbles.length - 1; i >= 0; i--) {
+                        const bubble = bubbles[i];
+                        if (!bubble.isPopping) {
+                            const distance = Math.sqrt(
+                                (mouseX - bubble.x) ** 2 + (mouseY - bubble.y) ** 2
+                            );
+                            if (distance <= bubble.radius) {
+                                bubble.isPopping = true;
+                            }
+                        }
+                    }
+                }
+                
+                for (let i = bubbles.length - 1; i >= 0; i--) {
+                    const bubble = bubbles[i];
+                    if (bubble.isPopping) {
+                        bubble.popScale -= 0.15;
+                        bubble.fadeOpacity -= 0.15;
+
+                        if (bubble.popScale <= 0) {
+                            bubbles.splice(i, 1);
+                            bubbles.push(new Bubble());
+                            continue;
+                        }
+                    } else {
+                        bubble.y -= bubble.speed;
+                        if (bubble.y < -bubble.radius) {
+                            bubbles.splice(i, 1);
+                            bubbles.push(new Bubble());
+                            continue;
+                        }
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.arc(bubble.x, bubble.y, bubble.radius * bubble.popScale, 0, Math.PI * 2, false);
+                    ctx.strokeStyle = bubble.color;
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = bubble.opacity * bubble.fadeOpacity;
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+            }
+            
+            // Main animation loop
+            function animate() {
+                animationFrameId = requestAnimationFrame(animate);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Only draw the canvas animations if the theme needs them
+                if (currentTheme.animation === 'stars') {
+                    drawStars();
+                } else if (currentTheme.animation === 'bubbles') {
+                    drawBubbles();
+                }
+            }
+            
+            // --- Audio Player Logic ---
+            function togglePlayPauseIcons() {
+                if (audio.paused) {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                } else {
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                }
+            }
+
+            function playMusic() {
+                if (currentMusicList.length === 0) return;
+                
+                audio.src = currentMusicList[currentTrackIndex].url;
+                audio.play().then(() => {
+                    togglePlayPauseIcons();
+                    nowPlayingText.textContent = `Now Playing: ${currentMusicList[currentTrackIndex].name}`;
+                }).catch(error => {
+                    console.error("Error playing audio:", error);
+                    showMessage('Error playing music. Try a different theme or track.', 'red');
+                });
+            }
+            
+            function pauseMusic() {
+                audio.pause();
+                togglePlayPauseIcons();
+            }
+            
+            function nextTrack() {
+                currentTrackIndex = (currentTrackIndex + 1) % currentMusicList.length;
+                playMusic();
+            }
+            
+            function prevTrack() {
+                currentTrackIndex = (currentTrackIndex - 1 + currentMusicList.length) % currentMusicList.length;
+                playMusic();
+            }
+            
+            playPauseBtn.addEventListener('click', () => {
+                if (audio.paused) {
+                    playMusic();
+                } else {
+                    pauseMusic();
+                }
+            });
+            nextBtn.addEventListener('click', nextTrack);
+            prevBtn.addEventListener('click', prevTrack);
+            audio.addEventListener('ended', nextTrack);
+            
+            // --- UI and Theme Logic ---
+            /**
+             * Sets the active theme and updates the UI.
+             * @param {string} themeName The name of the theme to apply.
+             */
+            function setTheme(themeName) {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+                
+                body.classList.remove('dark-theme', 'light-theme', 'minecraft-theme');
+                body.classList.add(themeName);
+                
+                darkThemeBtn.classList.remove('active');
+                lightThemeBtn.classList.remove('active');
+                minecraftThemeBtn.classList.remove('active');
+                
+                if (themeName === 'dark-theme') {
+                    darkThemeBtn.classList.add('active');
+                    currentTheme = themes['dark-theme'];
+                    createStars();
+                    canvas.style.display = 'block';
+                    animate();
+                } else if (themeName === 'light-theme') {
+                    lightThemeBtn.classList.add('active');
+                    currentTheme = themes['light-theme'];
+                    createBubbles();
+                    canvas.style.display = 'block';
+                    animate();
+                } else if (themeName === 'minecraft-theme') {
+                    minecraftThemeBtn.classList.add('active');
+                    currentTheme = themes['minecraft-theme'];
+                    // The minecraft theme has no canvas animation
+                    canvas.style.display = 'none';
+                    // We need to stop any existing animation here
+                }
+                
+                // Update music list and player visibility
+                currentMusicList = currentTheme.music;
+                if (currentMusicList.length > 0) {
+                    audioPlayerContainer.style.display = 'flex';
+                    currentTrackIndex = 0;
+                    nowPlayingText.textContent = `Select a track to play.`;
+                    audio.pause();
+                } else {
+                    audioPlayerContainer.style.display = 'none';
+                    audio.pause();
+                }
+                // Ensure icons are correct on theme change
+                togglePlayPauseIcons();
+            }
+            
+            // Initial setup on page load
+            setTheme('dark-theme');
+
+            darkThemeBtn.addEventListener('click', () => setTheme('dark-theme'));
+            lightThemeBtn.addEventListener('click', () => setTheme('light-theme'));
+            minecraftThemeBtn.addEventListener('click', () => setTheme('minecraft-theme'));
+
+            fileInput.addEventListener('change', (event) => {
+                const files = event.target.files;
+                if (files.length > 0) {
+                    fileListContainer.innerHTML = '';
+                    
+                    let validFilesCount = 0;
+                    for (const file of files) {
+                        if (file.name.toLowerCase().endsWith('.html')) {
+                            addFileToList(file);
+                            validFilesCount++;
+                        }
+                    }
+                    
+                    if (validFilesCount > 0) {
+                        showMessage(`${validFilesCount} file(s) selected. Choose a game to launch!`, 'green');
+                    } else {
+                        showMessage('Please select a valid Eaglercraft HTML file(s).', 'red');
+                    }
+                } else {
+                    fileListContainer.innerHTML = '';
+                    showMessage('No files selected.', 'yellow');
+                }
+            });
+
+            /**
+             * Dynamically adds a file and its launch button to the list.
+             * @param {File} file The file object to add.
+             */
+            function addFileToList(file) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileNameSpan = document.createElement('span');
+                fileNameSpan.textContent = file.name;
+                fileNameSpan.className = 'text-gray-200 truncate pr-4';
+
+                const launchButton = document.createElement('button');
+                launchButton.textContent = 'Launch';
+                // The new CSS rules handle the button styling, making this more robust
+                launchButton.className = 'launch-button font-bold py-2 px-4 rounded-full transition duration-300 transform hover:scale-105 shadow-lg whitespace-nowrap';
+                
+                launchButton.addEventListener('click', () => {
+                    console.log(`Launch button clicked for file: ${file.name}`);
+                    launchGame(file);
+                });
+
+                fileItem.appendChild(fileNameSpan);
+                fileItem.appendChild(launchButton);
+                fileListContainer.appendChild(fileItem);
+            }
+
+            /**
+             * Reads a file and launches it in a new window.
+             * @param {File} file The file to launch.
+             */
+            function launchGame(file) {
+                showMessage(`Launching "${file.name}"...`, 'yellow');
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const htmlContent = e.target.result;
+                    const blob = new Blob([htmlContent], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const newWindow = window.open(url, '_blank');
+                    if (newWindow) {
+                        newWindow.addEventListener('unload', () => {
+                            URL.revokeObjectURL(url);
+                        });
+                        showMessage(`"${file.name}" launched successfully!`, 'green');
+                    } else {
+                        showMessage('Could not open a new window. Please ensure your browser\'s pop-up blocker is disabled.', 'red');
+                    }
+                };
+                reader.onerror = () => {
+                    showMessage('Failed to read the file. Please try again.', 'red');
+                };
+                reader.readAsText(file);
+            }
+
+            /**
+             * Displays a message in the message box.
+             * @param {string} message The message to display.
+             * @param {string} type The type of message ('green' for success, 'red' for error, 'yellow' for info).
+             */
+            function showMessage(message, type) {
+                messageBox.textContent = message;
+                messageBox.className = 'mt-8 p-4 rounded-xl shadow-lg block';
+                if (type === 'green') {
+                    messageBox.classList.add('bg-emerald-600', 'text-white');
+                } else if (type === 'red') {
+                    messageBox.classList.add('bg-red-600', 'text-white');
+                } else {
+                    messageBox.classList.add('bg-yellow-600', 'text-white');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
