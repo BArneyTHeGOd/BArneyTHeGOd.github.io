@@ -494,7 +494,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="play-icon">
                             <path d="M8 5v14l11-7z"/>
                         </svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="pause-icon" class="hidden">
+                        <svg xmlns="http://www.w3.org/2-10/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="pause-icon" class="hidden">
                             <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                         </svg>
                     </button>
@@ -595,7 +595,7 @@
                 Back to Loader
             </button>
         </div>
-        <iframe id="eaglercraft-files-iframe" src="https://drive.google.com/drive/folders/1_7ZsvH-DRLfvBLsMn4YgfwNT3cedJ6wz" title="Eaglercraft Files Search"></iframe>
+        <iframe id="eaglercraft-files-iframe" src="https://www.google.com/search?q=Eaglercraft+Files" title="Eaglercraft Files Search"></iframe>
     </div>
 
     <!-- The iframe container for Worlds -->
@@ -608,7 +608,7 @@
                 Back to Loader
             </button>
         </div>
-        <iframe id="worlds-iframe" src="https://drive.google.com/drive/folders/14vO9FD9x9icL1Kx12h8Iy0K9arnKKoPV" title="Eaglercraft Worlds Search"></iframe>
+        <iframe id="worlds-iframe" src="https://www.google.com/search?q=Eaglercraft+Worlds" title="Eaglercraft Worlds Search"></iframe>
     </div>
     
     <script>
@@ -978,7 +978,7 @@
                     nowPlayingText.textContent = `Now Playing: ${currentMusicList[currentTrackIndex].name}`;
                 }).catch(error => {
                     console.error("Error playing audio:", error);
-                    showMessage('Error playing music. Try a different theme or track.', 'red');
+                    showMessage('Error playing music. Try a different theme or track.', 'red', 5000);
                 });
             }
             
@@ -1133,7 +1133,7 @@
                 // Set the active theme to 'custom-theme'
                 setTheme('custom-theme');
                 
-                showMessage('Custom theme applied!', 'green', 3000); // 3-second duration
+                showMessage('Custom theme applied!', 'green', 5000); // 5-second duration
             });
 
 
@@ -1163,7 +1163,7 @@
                 a.click();
                 URL.revokeObjectURL(url);
                 
-                showMessage('Theme preferences downloaded!', 'green', 3000);
+                showMessage('Theme preferences downloaded!', 'green', 5000);
             });
             
             // Logic for uploading theme preferences
@@ -1178,7 +1178,7 @@
                     try {
                         const themeData = JSON.parse(e.target.result);
                         applyLoadedTheme(themeData);
-                        showMessage('Theme preferences loaded successfully!', 'green', 3000);
+                        showMessage('Theme preferences loaded successfully!', 'green', 5000);
                     } catch (error) {
                         console.error('Failed to parse theme file:', error);
                         showMessage('Failed to load theme. Please select a valid .bar2 file.', 'red', 5000);
@@ -1325,14 +1325,14 @@
                     }
                     
                     if (validFilesCount > 0) {
-                        showMessage(`${validFilesCount} file(s) selected. Choose a game to launch!`, 'green');
+                        showMessage(`${validFilesCount} file(s) selected. Choose a game to launch!`, 'green', 5000);
                     } else {
                         // The message has been updated to reflect the new file extension
-                        showMessage('Please select a valid .html file(s).', 'red');
+                        showMessage('Please select a valid .html file(s).', 'red', 5000);
                     }
                 } else {
                     fileListContainer.innerHTML = '';
-                    showMessage('No files selected.', 'yellow');
+                    showMessage('No files selected.', 'yellow', 5000);
                 }
             });
 
@@ -1368,7 +1368,8 @@
              * @param {File} file The file to launch.
              */
             function launchGame(file) {
-                showMessage(`Launching "${file.name}"...`, 'yellow');
+                // The "Launching..." message now fades after 5 seconds
+                showMessage(`Launching "${file.name}"...`, 'yellow', 5000);
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
@@ -1378,14 +1379,15 @@
                         
                         gameIframe.src = url;
                         showIframeView(gameIframeContainer);
-                        showMessage(`"${file.name}" loaded!`, 'green');
+                        // The "loaded" message now fades after 5 seconds
+                        showMessage(`"${file.name}" loaded!`, 'green', 5000);
                     } catch (error) {
                         console.error("Error launching game:", error);
-                        showMessage('Failed to launch the game. Please try again.', 'red');
+                        showMessage('Failed to launch the game. Please try again.', 'red', 5000);
                     }
                 };
                 reader.onerror = () => {
-                    showMessage('Failed to read the file.', 'red');
+                    showMessage('Failed to read the file.', 'red', 5000);
                 };
                 reader.readAsText(file);
             }
