@@ -75,7 +75,7 @@
             font-family: 'Press Start 2P', cursive;
         }
 
-        /* NEW: Class for persistent background image */
+        /* Class for persistent background image */
         body.bg-minecraft-gif {
             background-image: url('https://i.redd.it/4ec77oea73c41.gif');
             background-size: cover;
@@ -188,8 +188,8 @@
 
         .file-item {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column; /* Changed to column to stack text and buttons */
+            align-items: flex-start; /* Align text to the left */
             padding: 1rem;
             background-color: var(--file-item-bg);
             border-radius: 0.75rem;
@@ -200,6 +200,13 @@
             color: var(--text-color);
         }
         
+        /* New class for the filename to allow wrapping */
+        .file-name-span {
+            word-wrap: break-word; /* Ensures long file names wrap correctly */
+            overflow-wrap: break-word;
+            white-space: normal; /* Override any nowrap behavior */
+        }
+
         .launch-button, .upload-button, .theme-button, .audio-player-button, #sidebar-toggle-btn, #apply-custom-theme-btn, #settings-btn, .bg-option-btn, #dismiss-modal-btn {
             transition: all 0.1s ease-in-out;
             cursor: pointer;
@@ -339,19 +346,22 @@
             display: none;
             opacity: 0;
         }
-
+        
         #modal-content {
-            position: relative; /* Needed for absolute positioning of the 'x' button */
+            position: relative;
             background-color: var(--sidebar-bg-color);
             color: var(--text-color);
             padding: 2rem;
             border-radius: 1rem;
             text-align: center;
+            /* The width and max-width are now responsive */
             width: 90%;
-            max-width: 400px;
+            max-width: 500px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(15px);
             animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+            /* Adding a transition for the width/height property to enable smooth resizing */
+            transition: width 0.3s ease, height 0.3s ease, max-width 0.3s ease;
         }
         
         @keyframes fadeIn {
@@ -363,6 +373,14 @@
                 opacity: 1;
                 transform: scale(1);
             }
+        }
+
+        /* NEW: File item buttons container */
+        .file-item-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+            margin-top: 0.5rem;
         }
         
     </style>
@@ -491,10 +509,10 @@
                         </svg>
                     </button>
                     <button id="play-pause-btn" class="audio-player-button p-3 rounded-full shadow-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="play-icon">
+                        <svg xmlns="http://www.w3.org/2-10/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="play-icon">
                             <path d="M8 5v14l11-7z"/>
                         </svg>
-                        <svg xmlns="http://www.w3.org/2-10/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="pause-icon" class="hidden">
+                        <svg xmlns="http://www.w3.org/24-10/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="pause-icon" class="hidden">
                             <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                         </svg>
                     </button>
@@ -1338,28 +1356,59 @@
 
             /**
              * Dynamically adds a file and its launch button to the list.
-             * @param {File} file The file object to add.
+             * @param {File} file The file to add.
              */
             function addFileToList(file) {
                 const fileItem = document.createElement('div');
                 fileItem.className = 'file-item';
                 
                 const fileNameSpan = document.createElement('span');
+                // Removed truncate class and added the new file-name-span class to allow wrapping.
                 fileNameSpan.textContent = file.name;
-                fileNameSpan.className = 'text-gray-200 truncate pr-4';
-
-                const launchButton = document.createElement('button');
-                launchButton.textContent = 'Launch';
-                // The new CSS rules handle the button styling, making this more robust
-                launchButton.className = 'launch-button font-bold py-2 px-4 rounded-full transition duration-300 transform hover:scale-105 shadow-lg whitespace-nowrap';
+                fileNameSpan.className = 'text-gray-200 file-name-span pr-4';
+                // Add a title attribute for a tooltip on hover
+                fileNameSpan.title = file.name;
                 
-                launchButton.addEventListener('click', () => {
-                    console.log(`Launch button clicked for file: ${file.name}`);
-                    launchGame(file);
+                // Container for the buttons
+                const buttonsContainer = document.createElement('div');
+                buttonsContainer.className = 'file-item-buttons';
+
+                // Launch in Blob button
+                const launchBlobBtn = document.createElement('button');
+                launchBlobBtn.textContent = 'Launch in Blob';
+                launchBlobBtn.className = 'launch-button font-bold py-2 px-4 rounded-full transition duration-300 transform hover:scale-105 shadow-lg whitespace-nowrap';
+                launchBlobBtn.addEventListener('click', () => {
+                    launchGameNewTab(file);
                 });
 
+                // Launch in Synaptic button
+                const launchSynapticBtn = document.createElement('button');
+                launchSynapticBtn.textContent = 'Launch in Synaptic';
+                launchSynapticBtn.className = 'launch-button font-bold py-2 px-4 rounded-full transition duration-300 transform hover:scale-105 shadow-lg whitespace-nowrap';
+                // Use a data attribute to track clicks for the warning message
+                launchSynapticBtn.dataset.clicks = 0;
+                
+                launchSynapticBtn.addEventListener('click', () => {
+                    // Check the number of clicks on this specific button
+                    let clicks = parseInt(launchSynapticBtn.dataset.clicks, 10);
+                    
+                    if (clicks === 0) {
+                        // First click: show warning message
+                        const warningMessage = 'Synaptic is laggy for 1.12 and it is recommended to launch in Blob. Click again to launch in Synaptic.';
+                        showMessage(warningMessage, 'yellow', 7000); // 7s duration for the warning
+                        launchSynapticBtn.dataset.clicks = 1; // Increment click count
+                    } else {
+                        // Second click: launch the game
+                        launchGameIframe(file);
+                        launchSynapticBtn.dataset.clicks = 0; // Reset for future launches
+                    }
+                });
+                
+                buttonsContainer.appendChild(launchBlobBtn);
+                buttonsContainer.appendChild(launchSynapticBtn);
+
                 fileItem.appendChild(fileNameSpan);
-                fileItem.appendChild(launchButton);
+                fileItem.appendChild(buttonsContainer);
                 fileListContainer.appendChild(fileItem);
             }
 
@@ -1367,7 +1416,7 @@
              * Reads a file, creates a blob URL, and launches it in the game iframe.
              * @param {File} file The file to launch.
              */
-            function launchGame(file) {
+            function launchGameIframe(file) {
                 // The "Launching..." message now fades after 5 seconds
                 showMessage(`Launching "${file.name}"...`, 'yellow', 5000);
                 const reader = new FileReader();
@@ -1384,6 +1433,30 @@
                     } catch (error) {
                         console.error("Error launching game:", error);
                         showMessage('Failed to launch the game. Please try again.', 'red', 5000);
+                    }
+                };
+                reader.onerror = () => {
+                    showMessage('Failed to read the file.', 'red', 5000);
+                };
+                reader.readAsText(file);
+            }
+
+            /**
+             * Reads a file, creates a blob URL, and launches it in a new tab.
+             * @param {File} file The file to launch.
+             */
+            function launchGameNewTab(file) {
+                showMessage(`Launching "${file.name}" in a new tab...`, 'yellow', 5000);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const htmlContent = e.target.result;
+                        const blob = new Blob([htmlContent], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        window.open(url, '_blank');
+                    } catch (error) {
+                        console.error("Error launching game in new tab:", error);
+                        showMessage('Failed to launch the game in a new tab. Please try again.', 'red', 5000);
                     }
                 };
                 reader.onerror = () => {
