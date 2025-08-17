@@ -200,7 +200,7 @@
             color: var(--text-color);
         }
         
-        .launch-button, .upload-button, .theme-button, .audio-player-button, #sidebar-toggle-btn, #apply-custom-theme-btn, #settings-btn, .bg-option-btn {
+        .launch-button, .upload-button, .theme-button, .audio-player-button, #sidebar-toggle-btn, #apply-custom-theme-btn, #settings-btn, .bg-option-btn, #dismiss-modal-btn {
             transition: all 0.1s ease-in-out;
             cursor: pointer;
             border: 2px solid transparent;
@@ -212,7 +212,7 @@
             transform: scale(1.0);
         }
         
-        .launch-button:hover, .upload-button:hover, .audio-player-button:hover, #sidebar-toggle-btn:hover, #apply-custom-theme-btn:hover, #settings-btn:hover, .bg-option-btn:hover {
+        .launch-button:hover, .upload-button:hover, .audio-player-button:hover, #sidebar-toggle-btn:hover, #apply-custom-theme-btn:hover, #settings-btn:hover, .bg-option-btn:hover, #dismiss-modal-btn:hover {
             transform: scale(1.05);
             background-color: var(--btn-hover-primary);
         }
@@ -318,11 +318,71 @@
             width: 1.25rem; /* 5 */
             height: 1.25rem; /* 5 */
         }
+
+        /* --- New Modal (Pop-up) Styles --- */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75); /* Dark, semi-transparent overlay */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 1; /* Initially visible */
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        #modal-overlay.hidden {
+            display: none;
+            opacity: 0;
+        }
+
+        #modal-content {
+            position: relative; /* Needed for absolute positioning of the 'x' button */
+            background-color: var(--sidebar-bg-color);
+            color: var(--text-color);
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
     <!-- The canvas for the background animation -->
     <canvas id="background-canvas"></canvas>
+
+    <!-- The new modal/pop-up -->
+    <div id="modal-overlay">
+        <div id="modal-content">
+            <!-- The new X button to dismiss the modal -->
+            <button id="dismiss-modal-btn" class="absolute top-2 right-2 p-2 text-2xl font-bold leading-none bg-transparent hover:bg-white hover:bg-opacity-20 rounded-full transition-colors duration-200">
+                &times;
+            </button>
+            <h2 class="text-2xl font-bold mb-4" style="color: var(--header-color);">Welcome to Synaptic V2</h2>
+            <p class="mb-6 text-base">This site is in testing.</p>
+            <p class="mb-6 text-sm italic">by barney</p>
+        </div>
+    </div>
 
     <!-- The new sidebar -->
     <div id="sidebar" class="open">
@@ -449,7 +509,7 @@
             <!-- Main file upload container -->
             <div class="space-y-4 mt-6">
                 <div class="relative flex items-center justify-center">
-                    <!-- The accept attribute has been changed to allow only .html files -->
+                    <!-- The accept attribute has been updated to allow only .html files -->
                     <input type="file" id="file-upload" accept=".html" multiple class="hidden" />
                     <label for="file-upload" class="cursor-pointer upload-button font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-105 shadow-lg">
                         Choose Eaglercraft .html Files
@@ -630,6 +690,16 @@
             // New Theme Persistence elements
             const downloadThemeBtn = document.getElementById('download-theme-btn');
             const themeUploadInput = document.getElementById('theme-upload-input');
+
+            // New Modal elements
+            const modalOverlay = document.getElementById('modal-overlay');
+            const dismissModalBtn = document.getElementById('dismiss-modal-btn');
+
+            // Add the event listener for the modal's dismiss button as one of the first things.
+            dismissModalBtn.addEventListener('click', () => {
+                hideWelcomeModal();
+            });
+
 
             // --- Theme and Animation Data ---
             const themeColors = {
@@ -940,34 +1010,50 @@
             
             // --- UI and Theme Logic ---
             /**
-             * Sets the active color theme.
+             * Sets the active color theme and corresponding background.
              * @param {string} themeName The name of the color theme to apply.
              */
             function setTheme(themeName) {
                 currentThemeName = themeName;
-
+                
+                // Remove all theme classes and add the new one
                 body.classList.remove('dark-theme', 'light-theme', 'minecraft-theme', 'custom-theme');
                 body.classList.add(themeName);
                 
+                // Update button active states for color themes
                 darkThemeBtn.classList.remove('active');
                 lightThemeBtn.classList.remove('active');
                 minecraftThemeBtn.classList.remove('active');
                 applyCustomThemeBtn.classList.remove('active');
-                
+
+                // Determine the background to set based on the theme
+                let newBackgroundName;
+                if (themeName === 'dark-theme') {
+                    darkThemeBtn.classList.add('active');
+                    newBackgroundName = 'stars';
+                } else if (themeName === 'light-theme') {
+                    lightThemeBtn.classList.add('active');
+                    newBackgroundName = 'bubbles';
+                } else if (themeName === 'minecraft-theme') {
+                    minecraftThemeBtn.classList.add('active');
+                    newBackgroundName = 'minecraft';
+                } else if (themeName === 'custom-theme') {
+                    applyCustomThemeBtn.classList.add('active');
+                    // For custom theme, we don't change the background automatically.
+                    // The user must select it manually.
+                    newBackgroundName = currentBackgroundName; 
+                }
+
+                // Call setBackgroundAnimation with the correct background name
+                setBackgroundAnimation(newBackgroundName);
+
                 // Get the default colors for the selected theme
                 let defaultBg = getComputedStyle(document.documentElement).getPropertyValue('--bg-color');
                 let defaultText = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
                 let defaultHeader = getComputedStyle(document.documentElement).getPropertyValue('--header-color');
                 let defaultBtn = getComputedStyle(document.documentElement).getPropertyValue('--btn-bg-primary');
 
-                if (themeName === 'dark-theme') {
-                    darkThemeBtn.classList.add('active');
-                } else if (themeName === 'light-theme') {
-                    lightThemeBtn.classList.add('active');
-                } else if (themeName === 'minecraft-theme') {
-                    minecraftThemeBtn.classList.add('active');
-                } else if (themeName === 'custom-theme') {
-                    applyCustomThemeBtn.classList.add('active');
+                if (themeName === 'custom-theme') {
                     // Update the color pickers to reflect the applied custom colors
                     defaultBg = getComputedStyle(document.documentElement).getPropertyValue('--custom-bg-color');
                     defaultText = getComputedStyle(document.documentElement).getPropertyValue('--custom-text-color');
@@ -1013,6 +1099,7 @@
                 // Update button active states
                 const bgButtons = document.querySelectorAll('.bg-option-btn');
                 bgButtons.forEach(btn => btn.classList.remove('active'));
+                // Ensure the button for the selected background is marked active
                 document.getElementById(`bg-${animationName}-btn`).classList.add('active');
 
                 // Apply the new background
@@ -1138,16 +1225,6 @@
 
             // Initial setup on page load
             setTheme('dark-theme');
-            setBackgroundAnimation('stars'); // Default background
-
-            darkThemeBtn.addEventListener('click', () => setTheme('dark-theme'));
-            lightThemeBtn.addEventListener('click', () => setTheme('light-theme'));
-            minecraftThemeBtn.addEventListener('click', () => setTheme('minecraft-theme'));
-            
-            bgStarsBtn.addEventListener('click', () => setBackgroundAnimation('stars'));
-            bgBubblesBtn.addEventListener('click', () => setBackgroundAnimation('bubbles'));
-            bgMinecraftBtn.addEventListener('click', () => setBackgroundAnimation('minecraft'));
-            bgNoneBtn.addEventListener('click', () => setBackgroundAnimation('none'));
             
             // --- UI event handlers for the iframe feature ---
             /**
@@ -1308,7 +1385,7 @@
                     }
                 };
                 reader.onerror = () => {
-                    showMessage('Failed to read the file. Please try again.', 'red');
+                    showMessage('Failed to read the file.', 'red');
                 };
                 reader.readAsText(file);
             }
@@ -1350,10 +1427,42 @@
                 }
             }
             
+            /**
+             * Shows the welcome modal pop-up.
+             */
+            function showWelcomeModal() {
+                modalOverlay.classList.remove('hidden');
+            }
+
+            /**
+             * Hides the welcome modal pop-up.
+             */
+            function hideWelcomeModal() {
+                modalOverlay.classList.add('hidden');
+            }
+            
+            // --- Main Entry Point ---
             // Initial call to set the time and battery status
             updateTime();
             setInterval(updateTime, 1000);
             initBatteryStatus();
+            
+            // Initial setup on page load
+            setTheme('dark-theme');
+            
+            // Event listeners for theme buttons
+            darkThemeBtn.addEventListener('click', () => setTheme('dark-theme'));
+            lightThemeBtn.addEventListener('click', () => setTheme('light-theme'));
+            minecraftThemeBtn.addEventListener('click', () => setTheme('minecraft-theme'));
+            
+            // Event listeners for background buttons
+            bgStarsBtn.addEventListener('click', () => setBackgroundAnimation('stars'));
+            bgBubblesBtn.addEventListener('click', () => setBackgroundAnimation('bubbles'));
+            bgMinecraftBtn.addEventListener('click', () => setBackgroundAnimation('minecraft'));
+            bgNoneBtn.addEventListener('click', () => setBackgroundAnimation('none'));
+
+            // Show the modal after the DOM is fully loaded and event listeners are attached
+            showWelcomeModal();
         });
     </script>
 </body>
