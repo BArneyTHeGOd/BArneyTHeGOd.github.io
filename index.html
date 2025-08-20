@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Synaptic V2</title>
+    <title>Synaptic V3</title>
     <!-- Use a custom font for better aesthetics -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <!-- Tailwind CSS for a modern and responsive design -->
@@ -14,7 +14,7 @@
         /* General styling for dark theme (default) */
         :root {
             --bg-color: #1a202c;
-            --sidebar-bg-color: rgba(31, 41, 55, 0.85);
+            --sidebar-bg-color: rgba(31, 41, 55, 0.3); /* Significantly more transparent */
             --text-color: #e5e7eb;
             --header-color: #34d399;
             --btn-bg-primary: #8b5cf6;
@@ -35,7 +35,7 @@
         /* Light theme overrides */
         body.light-theme {
             --bg-color: #f3f4f6;
-            --sidebar-bg-color: rgba(255, 255, 255, 0.85);
+            --sidebar-bg-color: rgba(255, 255, 255, 0.3); /* Significantly more transparent */
             --text-color: #1f2937;
             --header-color: #10b981;
             --btn-bg-primary: #3b82f6;
@@ -56,7 +56,7 @@
         /* Minecraft theme overrides */
         body.minecraft-theme {
             --bg-color: #38a169; /* Green fallback */
-            --sidebar-bg-color: rgba(107, 70, 48, 0.6); /* Brown with lower opacity */
+            --sidebar-bg-color: rgba(107, 70, 48, 0.3); /* Brown with lower opacity for consistency */
             --text-color: #e5e7eb;
             --header-color: #a0aec0; /* Gray */
             --btn-bg-primary: #4a5568; /* Dark gray */
@@ -207,7 +207,7 @@
             white-space: normal; /* Override any nowrap behavior */
         }
 
-        .launch-button, .upload-button, .theme-button, .audio-player-button, #sidebar-toggle-btn, #apply-custom-theme-btn, #settings-btn, .bg-option-btn, #dismiss-modal-btn {
+        .launch-button, .upload-button, .theme-button, .audio-player-button, #sidebar-toggle-btn, #apply-custom-theme-btn, #settings-btn, .bg-option-btn, #dismiss-modal-btn, #go-to-loader-btn {
             transition: all 0.1s ease-in-out;
             cursor: pointer;
             border: 2px solid transparent;
@@ -219,7 +219,7 @@
             transform: scale(1.0);
         }
         
-        .launch-button:hover, .upload-button:hover, .audio-player-button:hover, #sidebar-toggle-btn:hover, #apply-custom-theme-btn:hover, #settings-btn:hover, .bg-option-btn:hover, #dismiss-modal-btn:hover {
+        .launch-button:hover, .upload-button:hover, .audio-player-button:hover, #sidebar-toggle-btn:hover, #apply-custom-theme-btn:hover, #settings-btn:hover, .bg-option-btn:hover, #dismiss-modal-btn:hover, #go-to-loader-btn:hover {
             transform: scale(1.05);
             background-color: var(--btn-hover-primary);
         }
@@ -238,7 +238,7 @@
 
         .audio-player-button svg { width: 1.5rem; height: 1.5rem; }
 
-        .link-button {
+        .link-button, #go-to-home-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -253,7 +253,7 @@
             text-decoration: none;
         }
 
-        .link-button:hover {
+        .link-button:hover, #go-to-home-btn:hover {
             background-color: var(--link-btn-hover-bg);
             transform: scale(1.05);
         }
@@ -275,7 +275,7 @@
             background-color: var(--bg-color);
             z-index: 20;
         }
-
+        
         .iframe-container iframe {
             width: 100%;
             height: calc(100% - 60px); /* Leave space for the back button */
@@ -326,42 +326,44 @@
             height: 1.25rem; /* 5 */
         }
 
-        /* --- New Modal (Pop-up) Styles --- */
-        #modal-overlay {
+        /* --- Updated Modal (Pop-up) Styles --- */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.75); /* Dark, semi-transparent overlay */
+            background-color: rgba(0, 0, 0, 0.75);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 100;
-            opacity: 1; /* Initially visible */
+            opacity: 1;
             transition: opacity 0.3s ease-in-out;
         }
         
-        #modal-overlay.hidden {
+        .modal-overlay.hidden {
             display: none;
             opacity: 0;
         }
         
-        #modal-content {
+        .modal-content {
             position: relative;
             background-color: var(--sidebar-bg-color);
             color: var(--text-color);
-            padding: 2rem;
-            border-radius: 1rem;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
             text-align: center;
-            /* The width and max-width are now responsive */
             width: 90%;
             max-width: 500px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(15px);
             animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-            /* Adding a transition for the width/height property to enable smooth resizing */
             transition: width 0.3s ease, height 0.3s ease, max-width 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         
         @keyframes fadeIn {
@@ -382,46 +384,142 @@
             flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
             margin-top: 0.5rem;
         }
+
+        /* NEW: Dismiss button for modals */
+        .dismiss-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-color);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .dismiss-btn:hover {
+            color: var(--header-color);
+            transform: rotate(90deg);
+        }
+
+        /* NEW: Homepage specific styles */
+        #homepage-container {
+            display: none; /* Initially hidden, will be shown by JS */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 2rem;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #homepage-container.show {
+            display: flex;
+        }
         
+        #homepage-container h1 {
+            font-size: clamp(2rem, 5vw, 4rem); /* Responsive font size */
+        }
+        
+        #homepage-container .ultimate-edition {
+            font-size: clamp(1.2rem, 3vw, 2.5rem);
+            color: var(--text-color);
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
     <!-- The canvas for the background animation -->
     <canvas id="background-canvas"></canvas>
 
-    <!-- The new modal/pop-up -->
-    <div id="modal-overlay">
-        <div id="modal-content">
-            <!-- The new X button to dismiss the modal -->
-            <button id="dismiss-modal-btn" class="absolute top-2 right-2 p-2 text-2xl font-bold leading-none bg-transparent hover:bg-white hover:bg-opacity-20 rounded-full transition-colors duration-200">
-                &times;
-            </button>
-            <h2 class="text-2xl font-bold mb-4" style="color: var(--header-color);">Welcome to Synaptic V2</h2>
-            <p class="mb-6 text-base">This site is in testing.</p>
-            <p class="mb-6 text-sm italic">by barney</p>
+    <!-- NEW: The Homepage Container -->
+    <div id="homepage-container" class="show">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="currentColor" class="text-green-400 mb-6">
+            <path d="M11 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zM18.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.39-1.09-.73-1.71-.98l-.37-2.65C14.07 2.19 13.84 2 13.5 2h-3c-.34 0-.57.19-.66.44l-.37 2.65c-.62.25-1.19.59-1.71.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.39 1.09.73 1.71.98l.37 2.65c.09.25.32.44.66.44h3c.34 0 .57-.19.66-.44l.37-2.65c.62-.25 1.19-.59 1.71-.98l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65z"/>
+        </svg>
+        <h1 class="text-5xl font-bold mb-2" style="color: var(--header-color);">Synaptic V3</h1>
+        <p class="text-xl md:text-2xl font-bold mb-4 ultimate-edition">Ultimate Edition</p>
+        <p class="mb-8 text-gray-300 text-lg md:text-xl max-w-xl mx-auto">
+            Your enhanced Eaglercraft loader. V3 comes with new features and improvements.
+        </p>
+        <button id="go-to-loader-btn" class="launch-button px-8 py-3 text-lg rounded-full">Go to Loader</button>
+    </div>
+    
+    <!-- The new modal for launching the Synaptic V3 loader -->
+    <div id="launch-modal-overlay" class="modal-overlay hidden">
+        <div id="launch-modal-content" class="modal-content">
+            <button id="dismiss-launch-modal-btn" class="dismiss-btn">&times;</button>
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--header-color);">Warning</h2>
+            <p class="mb-6 text-base text-gray-300">
+                Launching in Synaptic can be laggy. It's highly recommended to use the "Launch in Blob" option for better performance.
+            </p>
+            <div class="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0 justify-center">
+                <button id="launch-anyway-btn" class="launch-button">Launch Anyway</button>
+                <button id="cancel-launch-btn" class="launch-button bg-red-500 hover:bg-red-700">Cancel</button>
+            </div>
         </div>
     </div>
 
     <!-- The new sidebar -->
-    <div id="sidebar" class="open">
+    <div id="sidebar" class="closed">
         <div id="app-container" class="w-full text-center">
-            <h1 class="text-3xl font-bold mb-4">Synaptic V2</h1>
+
+            <h1 class="text-3xl font-bold mb-4">Synaptic V3</h1>
             <p class="mb-6 text-gray-300 text-sm">
-                Synaptic V2 is an enhanced Eaglercraft loader. Upload your Eaglercraft HTML file(s) to play in your browser.
+                Synaptic V3 is an enhanced Eaglercraft loader. Upload your Eaglercraft HTML file(s) to play in your browser.
             </p>
 
-            <!-- Theme Controls -->
-            <div class="mb-6">
-                <p class="text-gray-300 font-semibold mb-2">Color Themes:</p>
-                <div class="flex flex-wrap justify-center items-center space-x-2">
-                    <button id="dark-theme-btn" class="theme-button bg-gray-700 text-gray-200">Dark</button>
-                    <button id="light-theme-btn" class="theme-button bg-white text-gray-800">Light</button>
-                    <button id="minecraft-theme-btn" class="theme-button bg-gray-600 text-white">Minecraft</button>
+            <!-- Back to Home button -->
+            <button id="go-to-home-btn" class="link-button w-full mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mr-2">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                Back to Home
+            </button>
+            
+            <!-- Audio Player Section -->
+            <div id="audio-player-container" class="mt-4 flex flex-col items-center">
+                <p id="now-playing" class="text-gray-300 mb-2 text-sm italic"></p>
+                <div class="flex space-x-4">
+                    <button id="prev-btn" class="audio-player-button p-3 rounded-full shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12zM5 5h2v14H5z"/>
+                        </svg>
+                    </button>
+                    <button id="play-pause-btn" class="audio-player-button p-3 rounded-full shadow-lg">
+                        <svg xmlns="http://www.w3.org/24-10/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="play-icon">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/24-10/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="pause-icon" class="hidden">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                    </button>
+                    <button id="next-btn" class="audio-player-button p-3 rounded-full shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12zM19 5v14h-2V5z"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
-            
+
+            <!-- Main file upload container -->
+            <div class="space-y-4 mt-6">
+                <div class="relative flex items-center justify-center">
+                    <!-- The accept attribute has been updated to allow only .html files -->
+                    <input type="file" id="file-upload" accept=".html" multiple class="hidden" />
+                    <label for="file-upload" class="cursor-pointer upload-button font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-105 shadow-lg">
+                        Choose Eaglercraft .html Files
+                    </label>
+                </div>
+            </div>
+
             <!-- Settings button and collapsible content -->
-            <div class="mb-6">
+            <div class="mb-6 mt-4">
                 <button id="settings-btn" class="launch-button w-full font-bold flex items-center justify-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zM19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.39-1.09-.73-1.71-.98l-.37-2.65C14.07 2.19 13.84 2 13.5 2h-3c-.34 0-.57.19-.66.44l-.37 2.65c-.62.25-1.19.59-1.71.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.39 1.09.73 1.71.98l.37 2.65c.09.25.32.44.66.44h3c.34 0 .57-.19.66-.44l.37-2.65c.62-.25 1.19-.59 1.71-.98l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65z"/>
@@ -429,6 +527,14 @@
                     <span>Settings</span>
                 </button>
                 <div id="settings-content" class="settings-content">
+                    <!-- NEW: Theme presets have been moved here -->
+                    <p class="text-gray-300 font-semibold mb-2 mt-4">Color Themes:</p>
+                    <div class="flex flex-wrap justify-center items-center space-x-2">
+                        <button id="dark-theme-btn" class="theme-button bg-gray-700 text-gray-200">Dark</button>
+                        <button id="light-theme-btn" class="theme-button bg-white text-gray-800">Light</button>
+                        <button id="minecraft-theme-btn" class="theme-button bg-gray-600 text-white">Minecraft</button>
+                    </div>
+
                     <p class="text-gray-300 font-semibold mb-2 mt-4">Backgrounds:</p>
                     <div class="flex flex-wrap justify-center items-center space-x-2">
                         <button id="bg-stars-btn" class="bg-option-btn">Stars</button>
@@ -475,6 +581,11 @@
                 </div>
             </div>
             
+            <!-- Container for the list of uploaded files -->
+            <div id="file-list-container" class="mt-8 space-y-3 text-left">
+                <!-- File items will be dynamically added here by JavaScript -->
+            </div>
+
             <!-- External Link Buttons -->
             <!-- All buttons in this section now use the 'link-button' class, ensuring they have the same transparent style. -->
             <div class="mb-6 space-y-3">
@@ -497,47 +608,10 @@
                 <button id="synapse-btn" class="link-button w-full" title="Temporarily disabled">
                     ThunderBolt
                 </button>
-            </div>
-
-            <!-- Audio Player Section -->
-            <div id="audio-player-container" class="mt-4 flex flex-col items-center">
-                <p id="now-playing" class="text-gray-300 mb-2 text-sm italic"></p>
-                <div class="flex space-x-4">
-                    <button id="prev-btn" class="audio-player-button p-3 rounded-full shadow-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12zM5 5h2v14H5z"/>
-                        </svg>
-                    </button>
-                    <button id="play-pause-btn" class="audio-player-button p-3 rounded-full shadow-lg">
-                        <svg xmlns="http://www.w3.org/2-10/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="play-icon">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                        <svg xmlns="http://www.w3.org/24-10/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="pause-icon" class="hidden">
-                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                        </svg>
-                    </button>
-                    <button id="next-btn" class="audio-player-button p-3 rounded-full shadow-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12zM19 5v14h-2V5z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Main file upload container -->
-            <div class="space-y-4 mt-6">
-                <div class="relative flex items-center justify-center">
-                    <!-- The accept attribute has been updated to allow only .html files -->
-                    <input type="file" id="file-upload" accept=".html" multiple class="hidden" />
-                    <label for="file-upload" class="cursor-pointer upload-button font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-105 shadow-lg">
-                        Choose Eaglercraft .html Files
-                    </label>
-                </div>
-            </div>
-
-            <!-- Container for the list of uploaded files -->
-            <div id="file-list-container" class="mt-8 space-y-3 text-left">
-                <!-- File items will be dynamically added here by JavaScript -->
+                <!-- The Legacy Edition button is now configured to open in a new tab -->
+                <button id="legacy-btn" class="link-button w-full" title="Redirects to the old Synapse loader">
+                    Legacy Edition
+                </button>
             </div>
         </div>
     </div>
@@ -669,8 +743,10 @@
             const gamesBtn = document.getElementById('games-btn');
             const gamesIframeContainer = document.getElementById('games-iframe-container');
             const backBtnGames = document.getElementById('back-btn-games');
-
-
+            
+            // The Legacy Edition button now opens in a new tab
+            const legacyBtn = document.getElementById('legacy-btn');
+            
             // The new button element for Synapse (now ThunderBolt)
             const synapseBtn = document.getElementById('synapse-btn');
             
@@ -710,12 +786,39 @@
             const themeUploadInput = document.getElementById('theme-upload-input');
 
             // New Modal elements
-            const modalOverlay = document.getElementById('modal-overlay');
-            const dismissModalBtn = document.getElementById('dismiss-modal-btn');
+            const launchModalOverlay = document.getElementById('launch-modal-overlay');
+            const dismissLaunchModalBtn = document.getElementById('dismiss-launch-modal-btn'); // New element
+            const launchAnywayBtn = document.getElementById('launch-anyway-btn');
+            const cancelLaunchBtn = document.getElementById('cancel-launch-btn');
+            
+            // We need a variable to store the file to be launched
+            let fileToLaunch = null;
+            
+            // NEW: Homepage elements
+            const homepageContainer = document.getElementById('homepage-container');
+            const goToLoaderBtn = document.getElementById('go-to-loader-btn');
+            const goToHomeBtn = document.getElementById('go-to-home-btn');
 
-            // Add the event listener for the modal's dismiss button as one of the first things.
-            dismissModalBtn.addEventListener('click', () => {
-                hideWelcomeModal();
+
+            // Add event listener for the new dismiss button on the launch modal
+            dismissLaunchModalBtn.addEventListener('click', () => {
+                hideModal(launchModalOverlay);
+                fileToLaunch = null;
+                showMessage('Launch canceled.', 'yellow', 3000);
+            });
+
+            // Event listeners for the launch confirmation modal
+            cancelLaunchBtn.addEventListener('click', () => {
+                hideModal(launchModalOverlay);
+                fileToLaunch = null; // Clear the file
+                showMessage('Launch canceled.', 'yellow', 3000);
+            });
+            
+            launchAnywayBtn.addEventListener('click', () => {
+                if (fileToLaunch) {
+                    launchGameIframe(fileToLaunch);
+                }
+                hideModal(launchModalOverlay);
             });
 
 
@@ -1118,7 +1221,10 @@
                 const bgButtons = document.querySelectorAll('.bg-option-btn');
                 bgButtons.forEach(btn => btn.classList.remove('active'));
                 // Ensure the button for the selected background is marked active
-                document.getElementById(`bg-${animationName}-btn`).classList.add('active');
+                if(document.getElementById(`bg-${animationName}-btn`)) {
+                     document.getElementById(`bg-${animationName}-btn`).classList.add('active');
+                }
+
 
                 // Apply the new background
                 if (backgroundData[animationName].type === 'canvas') {
@@ -1241,9 +1347,6 @@
                 settingsBtn.classList.toggle('active');
             });
 
-            // Initial setup on page load
-            setTheme('dark-theme');
-            
             // --- UI event handlers for the iframe feature ---
             /**
              * Handles switching to a specific iframe view.
@@ -1254,16 +1357,18 @@
                 // Hide all main containers
                 sidebar.classList.remove('open');
                 sidebar.classList.add('closed');
+                homepageContainer.classList.remove('show');
                 
                 // Show the requested iframe view
                 iframeContainer.style.display = 'flex';
             }
             
             /**
-             * Handles switching back to the main loader view.
+             * Handles switching back to the main loader view (the sidebar).
              */
             function showMainView() {
-                // Hide all iframe containers
+                // Hide all other containers
+                homepageContainer.classList.remove('show');
                 chatIframeContainer.style.display = 'none';
                 gamesIframeContainer.style.display = 'none';
                 gameIframeContainer.style.display = 'none';
@@ -1275,12 +1380,40 @@
                 sidebar.classList.add('open');
             }
             
+            /**
+             * Handles switching back to the homepage view.
+             */
+            function showHomepageView() {
+                // Hide all other containers
+                sidebar.classList.remove('open');
+                sidebar.classList.add('closed');
+                chatIframeContainer.style.display = 'none';
+                gamesIframeContainer.style.display = 'none';
+                gameIframeContainer.style.display = 'none';
+                eaglercraftFilesIframeContainer.style.display = 'none';
+                worldsIframeContainer.style.display = 'none';
+
+                // Show the homepage
+                homepageContainer.classList.add('show');
+            }
+
             // Event listener for sidebar toggle button
             sidebarToggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('closed');
-                sidebar.classList.toggle('open');
+                // Show the sidebar and hide the homepage if it's currently visible
+                if (homepageContainer.classList.contains('show')) {
+                    showMainView();
+                } else {
+                    sidebar.classList.toggle('closed');
+                    sidebar.classList.toggle('open');
+                }
             });
             
+            // Event listener for "Go to Loader" button on the homepage
+            goToLoaderBtn.addEventListener('click', showMainView);
+            
+            // Event listener for "Back to Home" button on the sidebar
+            goToHomeBtn.addEventListener('click', showHomepageView);
+
             // Event listener for Games button
             gamesBtn.addEventListener('click', () => {
                 showIframeView(gamesIframeContainer);
@@ -1298,6 +1431,11 @@
             
             worldsBtn.addEventListener('click', () => {
                 showIframeView(worldsIframeContainer);
+            });
+            
+            // Legacy Edition button now opens in a new tab
+            legacyBtn.addEventListener('click', () => {
+                window.open('https://barneythegod.github.io/Synapse.github.io/', '_blank');
             });
 
             // Event listener for the back buttons
@@ -1339,14 +1477,18 @@
                         if (file.name.toLowerCase().endsWith('.html')) {
                             addFileToList(file);
                             validFilesCount++;
+                        } else {
+                            // Display a more specific error message for invalid file types
+                            showMessage(`Invalid file: "${file.name}". Please select an HTML file.`, 'red', 7000);
+                            return; // Stop processing and show the error for the first invalid file
                         }
                     }
                     
                     if (validFilesCount > 0) {
                         showMessage(`${validFilesCount} file(s) selected. Choose a game to launch!`, 'green', 5000);
                     } else {
-                        // The message has been updated to reflect the new file extension
-                        showMessage('Please select a valid .html file(s).', 'red', 5000);
+                        // This case should only be hit if no files were selected at all.
+                        showMessage('No files selected.', 'yellow', 5000);
                     }
                 } else {
                     fileListContainer.innerHTML = '';
@@ -1381,27 +1523,15 @@
                     launchGameNewTab(file);
                 });
 
-                // Launch in Synaptic button
+                // Launch in Synaptic button - now shows a modal
                 const launchSynapticBtn = document.createElement('button');
                 launchSynapticBtn.textContent = 'Launch in Synaptic';
                 launchSynapticBtn.className = 'launch-button font-bold py-2 px-4 rounded-full transition duration-300 transform hover:scale-105 shadow-lg whitespace-nowrap';
-                // Use a data attribute to track clicks for the warning message
-                launchSynapticBtn.dataset.clicks = 0;
                 
                 launchSynapticBtn.addEventListener('click', () => {
-                    // Check the number of clicks on this specific button
-                    let clicks = parseInt(launchSynapticBtn.dataset.clicks, 10);
-                    
-                    if (clicks === 0) {
-                        // First click: show warning message
-                        const warningMessage = 'Synaptic is laggy for 1.12 and it is recommended to launch in Blob. Click again to launch in Synaptic.';
-                        showMessage(warningMessage, 'yellow', 7000); // 7s duration for the warning
-                        launchSynapticBtn.dataset.clicks = 1; // Increment click count
-                    } else {
-                        // Second click: launch the game
-                        launchGameIframe(file);
-                        launchSynapticBtn.dataset.clicks = 0; // Reset for future launches
-                    }
+                    // Set the file to be launched and show the modal
+                    fileToLaunch = file;
+                    showModal(launchModalOverlay);
                 });
                 
                 buttonsContainer.appendChild(launchBlobBtn);
@@ -1503,17 +1633,19 @@
             }
             
             /**
-             * Shows the welcome modal pop-up.
+             * Shows a modal pop-up.
+             * @param {HTMLElement} modal The modal overlay element to show.
              */
-            function showWelcomeModal() {
-                modalOverlay.classList.remove('hidden');
+            function showModal(modal) {
+                modal.classList.remove('hidden');
             }
 
             /**
-             * Hides the welcome modal pop-up.
+             * Hides a modal pop-up.
+             * @param {HTMLElement} modal The modal overlay element to hide.
              */
-            function hideWelcomeModal() {
-                modalOverlay.classList.add('hidden');
+            function hideModal(modal) {
+                modal.classList.add('hidden');
             }
             
             // --- Main Entry Point ---
@@ -1524,7 +1656,8 @@
             
             // Initial setup on page load
             setTheme('dark-theme');
-            
+            showHomepageView();
+
             // Event listeners for theme buttons
             darkThemeBtn.addEventListener('click', () => setTheme('dark-theme'));
             lightThemeBtn.addEventListener('click', () => setTheme('light-theme'));
@@ -1535,9 +1668,6 @@
             bgBubblesBtn.addEventListener('click', () => setBackgroundAnimation('bubbles'));
             bgMinecraftBtn.addEventListener('click', () => setBackgroundAnimation('minecraft'));
             bgNoneBtn.addEventListener('click', () => setBackgroundAnimation('none'));
-
-            // Show the modal after the DOM is fully loaded and event listeners are attached
-            showWelcomeModal();
         });
     </script>
 </body>
