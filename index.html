@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Synaptic V3</title>
-    <!-- Use a custom font for better aesthetics -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>SYNAPTIC V3</title>
+    <!-- Use the new Sansation font for a modern and clean aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Sansation:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <!-- Tailwind CSS for a modern and responsive design -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome CSS for lightning bolt icon -->
@@ -13,12 +13,13 @@
     <style>
         /* General styling for dark theme (default) */
         :root {
-            --bg-color: #1a202c;
-            --sidebar-bg-color: rgba(31, 41, 55, 0.3); /* Significantly more transparent */
+            /* Overhauled dark theme variables for a fresh look */
+            --bg-color: #121820; /* A deep, cool blue-black */
+            --sidebar-bg-color: rgba(25, 30, 40, 0.2); /* Adjusted for more transparency */
             --text-color: #e5e7eb;
-            --header-color: #34d399;
-            --btn-bg-primary: #8b5cf6;
-            --btn-hover-primary: #7c3aed;
+            --header-color: #5d91f8; /* A vibrant, eye-catching blue */
+            --btn-bg-primary: #5d91f8;
+            --btn-hover-primary: #4a7fd6;
             --btn-bg-secondary: #059669;
             --btn-hover-secondary: #047857;
             --file-item-bg: rgba(255, 255, 255, 0.05);
@@ -28,7 +29,7 @@
             --link-btn-bg: rgba(255, 255, 255, 0.1);
             --link-btn-hover-bg: rgba(255, 255, 255, 0.2);
             --link-btn-text: #e5e7eb;
-            --sys-info-bg: rgba(31, 41, 55, 0.85);
+            --sys-info-bg: rgba(25, 30, 40, 0.5); /* Adjusted for less opacity */
             --sys-info-text: #e5e7eb;
         }
         
@@ -94,7 +95,8 @@
         }
         
         body {
-            font-family: 'Inter', sans-serif;
+            /* Updated font to Sansation */
+            font-family: 'Sansation', sans-serif;
             background-color: var(--bg-color);
             position: relative;
             overflow: hidden;
@@ -120,13 +122,14 @@
             width: 300px;
             max-width: 80%; /* For mobile view */
             background-color: var(--sidebar-bg-color);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px); /* Slightly less blur for a cleaner look */
             transform: translateX(0);
             transition: transform 0.3s ease-in-out;
             z-index: 50;
             overflow-y: auto;
             padding: 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            /* New shadow for a more "floating" effect */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -207,59 +210,89 @@
             white-space: normal; /* Override any nowrap behavior */
         }
 
-        .launch-button, .upload-button, .theme-button, .audio-player-button, #sidebar-toggle-btn, #apply-custom-theme-btn, #settings-btn, .bg-option-btn, #dismiss-modal-btn, #go-to-loader-btn {
-            transition: all 0.1s ease-in-out;
-            cursor: pointer;
-            border: 2px solid transparent;
+        /* --- Overhauled Button Styles --- */
+
+        .launch-button, .upload-button, .theme-button, #sidebar-toggle-btn, #apply-custom-theme-btn, #settings-btn, .bg-option-btn, #dismiss-modal-btn, #go-to-loader-btn {
             font-weight: bold;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
+            padding: 0.8rem 1.6rem; /* Larger padding for a more substantial size */
+            border-radius: 0.75rem; /* Smoother rounded corners */
             background-color: var(--btn-bg-primary);
             color: var(--text-color);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transform: translateY(0);
+        }
+
+        .launch-button:hover, .upload-button:hover, #sidebar-toggle-btn:hover, #apply-custom-theme-btn:hover, #settings-btn:hover, .bg-option-btn:hover, #dismiss-modal-btn:hover, #go-to-loader-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        .upload-button { 
+            background-image: linear-gradient(135deg, var(--btn-bg-primary), var(--btn-hover-primary)); /* Added a subtle gradient */
+            color: #fff;
+            font-size: 1.125rem; /* text-lg */
+        }
+
+        /* Special style for the audio player buttons */
+        .audio-player-button {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border-radius: 50%; /* Make them perfectly circular */
+            background-color: rgba(255, 255, 255, 0.1); /* Subtle, transparent background */
+            color: var(--text-color);
+            padding: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             transform: scale(1.0);
         }
-        
-        .launch-button:hover, .upload-button:hover, .audio-player-button:hover, #sidebar-toggle-btn:hover, #apply-custom-theme-btn:hover, #settings-btn:hover, .bg-option-btn:hover, #dismiss-modal-btn:hover, #go-to-loader-btn:hover {
-            transform: scale(1.05);
-            background-color: var(--btn-hover-primary);
-        }
-        
-        .upload-button { padding: 0.75rem 1.5rem; }
-        .theme-button, .bg-option-btn { padding: 0.5rem 1rem; }
-        .theme-button.active, .bg-option-btn.active {
+
+        .audio-player-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 8px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+            background-color: rgba(255, 255, 255, 0.2);
         }
-        #dark-theme-btn.active { border-color: white; }
-        #light-theme-btn.active { border-color: var(--text-color); }
-        #minecraft-theme-btn.active { border-color: #a0aec0; }
-        #apply-custom-theme-btn.active { border-color: #fff; }
-        #settings-btn.active { border-color: #fff; }
 
-        .audio-player-button svg { width: 1.5rem; height: 1.5rem; }
-
+        .theme-button, .bg-option-btn { 
+            padding: 0.5rem 1rem; 
+            box-shadow: none; /* No shadow on these buttons */
+            transform: none; /* No translateY animation */
+        }
+        
+        .theme-button:hover, .bg-option-btn:hover { 
+            transform: none; /* No translateY on hover */
+        }
+        
+        .theme-button.active, .bg-option-btn.active {
+            box-shadow: 0 0 0 3px var(--header-color) inset; /* A cleaner border-like effect */
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+        
+        /* Link button style has been updated */
         .link-button, #go-to-home-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem 1rem;
-            background-color: var(--link-btn-bg);
-            color: var(--link-btn-text);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(5px);
+            padding: 0.6rem 1.2rem;
+            background-color: transparent; /* Transparent background */
+            color: var(--text-color);
+            border: 2px solid var(--header-color); /* Colorful, pronounced border */
             border-radius: 9999px;
             font-weight: 600;
             transition: all 0.2s ease-in-out;
             text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
         }
 
         .link-button:hover, #go-to-home-btn:hover {
-            background-color: var(--link-btn-hover-bg);
-            transform: scale(1.05);
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .link-button svg { width: 1.25rem; height: 1.25rem; margin-right: 0.5rem; }
-        body.light-theme .link-button { border-color: rgba(0, 0, 0, 0.2); }
+        body.light-theme .link-button { border-color: var(--header-color); }
         
         /* Full-screen containers for iframes */
         .iframe-container {
@@ -431,6 +464,21 @@
             font-size: clamp(1.2rem, 3vw, 2.5rem);
             color: var(--text-color);
         }
+
+        /* NEW: Separator line for sections */
+        .separator-line {
+            width: 100%;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 1.5rem 0;
+        }
+        
+        /* NEW: Section headings */
+        .section-heading {
+            font-weight: 600; /* semibold */
+            color: var(--text-color);
+            margin-bottom: 0.75rem;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
@@ -442,12 +490,12 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="currentColor" class="text-green-400 mb-6">
             <path d="M11 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zM18.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.39-1.09-.73-1.71-.98l-.37-2.65C14.07 2.19 13.84 2 13.5 2h-3c-.34 0-.57.19-.66.44l-.37 2.65c-.62.25-1.19.59-1.71.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.39 1.09.73 1.71.98l.37 2.65c.09.25.32.44.66.44h3c.34 0 .57-.19.66-.44l.37-2.65c.62-.25 1.19-.59 1.71-.98l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65z"/>
         </svg>
-        <h1 class="text-5xl font-bold mb-2" style="color: var(--header-color);">Synaptic V3</h1>
-        <p class="text-xl md:text-2xl font-bold mb-4 ultimate-edition">Ultimate Edition</p>
+        <h1 class="text-5xl font-bold mb-2 uppercase" style="color: var(--header-color);">SYNAPTIC V3</h1>
+        <p class="text-xl md:text-2xl font-bold mb-4 uppercase ultimate-edition">ULTIMATE EDITION</p>
         <p class="mb-8 text-gray-300 text-lg md:text-xl max-w-xl mx-auto">
             Your enhanced Eaglercraft loader. V3 comes with new features and improvements.
         </p>
-        <button id="go-to-loader-btn" class="launch-button px-8 py-3 text-lg rounded-full">Go to Loader</button>
+        <button id="go-to-loader-btn" class="launch-button px-8 py-3 text-lg">Go to Loader</button>
     </div>
     
     <!-- The new modal for launching the Synaptic V3 loader -->
@@ -469,7 +517,7 @@
     <div id="sidebar" class="closed">
         <div id="app-container" class="w-full text-center">
 
-            <h1 class="text-3xl font-bold mb-4">Synaptic V3</h1>
+            <h1 class="text-3xl font-bold mb-4 uppercase">SYNAPTIC V3</h1>
             <p class="mb-6 text-gray-300 text-sm">
                 Synaptic V3 is an enhanced Eaglercraft loader. Upload your Eaglercraft HTML file(s) to play in your browser.
             </p>
@@ -482,16 +530,32 @@
                 Back to Home
             </button>
             
+            <!-- File Upload Section -->
+            <div class="space-y-4">
+                <p class="section-heading">Game Loader</p>
+                <div class="relative flex items-center justify-center">
+                    <!-- The accept attribute has been updated to allow only .html files -->
+                    <input type="file" id="file-upload" accept=".html" multiple class="hidden" />
+                    <label for="file-upload" class="cursor-pointer upload-button font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-xl">
+                        Choose Eaglercraft .html Files
+                    </label>
+                </div>
+            </div>
+
+            <!-- Separator line -->
+            <div class="separator-line"></div>
+
             <!-- Audio Player Section -->
-            <div id="audio-player-container" class="mt-4 flex flex-col items-center">
-                <p id="now-playing" class="text-gray-300 mb-2 text-sm italic"></p>
+            <div id="audio-player-container" class="flex flex-col items-center">
+                <p class="section-heading">Audio Player</p>
+                <p id="now-playing" class="text-gray-300 mb-4 text-sm italic"></p>
                 <div class="flex space-x-4">
-                    <button id="prev-btn" class="audio-player-button p-3 rounded-full shadow-lg">
+                    <button id="prev-btn" class="audio-player-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12zM5 5h2v14H5z"/>
                         </svg>
                     </button>
-                    <button id="play-pause-btn" class="audio-player-button p-3 rounded-full shadow-lg">
+                    <button id="play-pause-btn" class="audio-player-button">
                         <svg xmlns="http://www.w3.org/24-10/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="play-icon">
                             <path d="M8 5v14l11-7z"/>
                         </svg>
@@ -499,27 +563,19 @@
                             <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                         </svg>
                     </button>
-                    <button id="next-btn" class="audio-player-button p-3 rounded-full shadow-lg">
+                    <button id="next-btn" class="audio-player-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12zM19 5v14h-2V5z"/>
                         </svg>
                     </button>
                 </div>
             </div>
-
-            <!-- Main file upload container -->
-            <div class="space-y-4 mt-6">
-                <div class="relative flex items-center justify-center">
-                    <!-- The accept attribute has been updated to allow only .html files -->
-                    <input type="file" id="file-upload" accept=".html" multiple class="hidden" />
-                    <label for="file-upload" class="cursor-pointer upload-button font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-105 shadow-lg">
-                        Choose Eaglercraft .html Files
-                    </label>
-                </div>
-            </div>
+            
+            <!-- Separator line -->
+            <div class="separator-line"></div>
 
             <!-- Settings button and collapsible content -->
-            <div class="mb-6 mt-4">
+            <div class="mb-6">
                 <button id="settings-btn" class="launch-button w-full font-bold flex items-center justify-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zM19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.39-1.09-.73-1.71-.98l-.37-2.65C14.07 2.19 13.84 2 13.5 2h-3c-.34 0-.57.19-.66.44l-.37 2.65c-.62.25-1.19.59-1.71.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.39 1.09.73 1.71.98l.37 2.65c.09.25.32.44.66.44h3c.34 0 .57-.19.66-.44l.37-2.65c.62-.25 1.19-.59 1.71-.98l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65z"/>
@@ -528,22 +584,22 @@
                 </button>
                 <div id="settings-content" class="settings-content">
                     <!-- NEW: Theme presets have been moved here -->
-                    <p class="text-gray-300 font-semibold mb-2 mt-4">Color Themes:</p>
-                    <div class="flex flex-wrap justify-center items-center space-x-2">
+                    <p class="section-heading mt-4">Color Themes</p>
+                    <div class="flex flex-wrap justify-center items-center gap-2">
                         <button id="dark-theme-btn" class="theme-button bg-gray-700 text-gray-200">Dark</button>
                         <button id="light-theme-btn" class="theme-button bg-white text-gray-800">Light</button>
                         <button id="minecraft-theme-btn" class="theme-button bg-gray-600 text-white">Minecraft</button>
                     </div>
 
-                    <p class="text-gray-300 font-semibold mb-2 mt-4">Backgrounds:</p>
-                    <div class="flex flex-wrap justify-center items-center space-x-2">
+                    <p class="section-heading mt-4">Backgrounds</p>
+                    <div class="flex flex-wrap justify-center items-center gap-2">
                         <button id="bg-stars-btn" class="bg-option-btn">Stars</button>
                         <button id="bg-bubbles-btn" class="bg-option-btn">Bubbles</button>
                         <button id="bg-minecraft-btn" class="bg-option-btn">Minecraft</button>
                         <button id="bg-none-btn" class="bg-option-btn">None</button>
                     </div>
 
-                    <p class="text-gray-300 font-semibold mb-2 mt-4">Custom Theme:</p>
+                    <p class="section-heading mt-4">Custom Theme</p>
                     <div class="space-y-2">
                         <div class="color-input-container">
                             <label for="bg-color-picker" class="text-gray-200 text-sm">Background</label>
@@ -565,7 +621,7 @@
                     <button id="apply-custom-theme-btn" class="mt-4 launch-button w-full font-bold">Apply Custom Theme</button>
 
                     <!-- New Theme Persistence Section -->
-                    <p class="text-gray-300 font-semibold mb-2 mt-4">Save/Load Theme:</p>
+                    <p class="section-heading mt-4">Save/Load Theme</p>
                     <div class="flex flex-col space-y-2">
                         <button id="download-theme-btn" class="launch-button w-full font-bold">
                             Download Theme Preferences
@@ -581,15 +637,12 @@
                 </div>
             </div>
             
-            <!-- Container for the list of uploaded files -->
-            <div id="file-list-container" class="mt-8 space-y-3 text-left">
-                <!-- File items will be dynamically added here by JavaScript -->
-            </div>
+            <!-- Separator line -->
+            <div class="separator-line"></div>
 
-            <!-- External Link Buttons -->
-            <!-- All buttons in this section now use the 'link-button' class, ensuring they have the same transparent style. -->
+            <!-- External Links Section -->
             <div class="mb-6 space-y-3">
-                <p class="text-gray-300 font-semibold mb-2">External Links:</p>
+                <p class="section-heading">External Links</p>
                 <!-- This button now opens the games site in an iframe and has the correct styling -->
                 <button id="games-btn" class="link-button w-full" title="Open the games website on this page">
                     Games
@@ -612,6 +665,11 @@
                 <button id="legacy-btn" class="link-button w-full" title="Redirects to the old Synapse loader">
                     Legacy Edition
                 </button>
+            </div>
+
+            <!-- Container for the list of uploaded files - Moved to the end of the sidebar -->
+            <div id="file-list-container" class="mt-8 space-y-3 text-left">
+                <!-- File items will be dynamically added here by JavaScript -->
             </div>
         </div>
     </div>
@@ -723,12 +781,15 @@
             const sidebar = document.getElementById('sidebar');
             const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
             const chatIframeContainer = document.getElementById('chat-iframe-container');
+            const gamesIframeContainer = document.getElementById('games-iframe-container'); // Games iframe
             const gameIframeContainer = document.getElementById('game-iframe-container');
             const gameIframe = document.getElementById('game-iframe');
             
             // UI buttons
             const chatBtn = document.getElementById('chat-btn');
+            const gamesBtn = document.getElementById('games-btn'); // Games button
             const backBtnChat = document.getElementById('back-btn-chat');
+            const backBtnGames = document.getElementById('back-btn-games'); // Games back button
             const backBtnGame = document.getElementById('back-btn-game');
 
             // New elements for the added buttons and iframes
@@ -738,11 +799,6 @@
             const worldsIframeContainer = document.getElementById('worlds-iframe-container');
             const backBtnEaglercraftFiles = document.getElementById('back-btn-eaglercraft-files');
             const backBtnWorlds = document.getElementById('back-btn-worlds');
-            
-            // The new iframe elements for the Games link
-            const gamesBtn = document.getElementById('games-btn');
-            const gamesIframeContainer = document.getElementById('games-iframe-container');
-            const backBtnGames = document.getElementById('back-btn-games');
             
             // The Legacy Edition button now opens in a new tab
             const legacyBtn = document.getElementById('legacy-btn');
